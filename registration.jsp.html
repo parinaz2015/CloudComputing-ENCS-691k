@@ -1,0 +1,72 @@
+<!-- uri attribute value resolves to a location the container understands and the prefix attribute informs a container what bits of markup are custom actions. -->
+<%@ page import="java.sql.*" %>
+<%@ page import="java.lang.Object" %>
+<%@ page import="com.google.appengine.api.utils.SystemProperty"%>
+
+
+<%
+    java.util.Date today = new java.util.Date();
+    String fname = request.getParameter("fname");
+    String lname = request.getParameter("lname");
+    String birthdate = request.getParameter("tranferedDate");
+    String gender = request.getParameter("gender");
+    int sex = 1;
+    if (gender.equals("0"))
+        sex = 0;
+    String email = request.getParameter("email");
+    String phone_number = request.getParameter("phone_number");
+    String payment_type = request.getParameter("payment_type");
+    String pay_acc_num = request.getParameter("pay_acc_num");
+    String bank_name = request.getParameter("bank_name");
+    String user = request.getParameter("uname");
+    String pwd = request.getParameter("pass");
+    String zipcode = request.getParameter("zipcode");
+    String country = request.getParameter("country");
+    String city = request.getParameter("city");
+    String street = request.getParameter("street");
+    Connection connection = null;
+	if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
+		// Connecting from App Engine.
+		// Load the class that provides the "jdbc:google:mysql://"
+		// prefix.
+		Class.forName("com.mysql.jdbc.GoogleDriver");
+	//	url = "jdbc:google:mysql://auctionsystem-1137:db?user=root";
+		connection = DriverManager.getConnection("jdbc:google:mysql://auctionsystem-1137:db/auctionsystem", "root","");
+		//"jdbc:google:mysql://<your-project-id>:<your-instance-name>/<your-database-name>?user=root";
+	} else {
+		// You may also assign an IP Address from the access control
+		// page and use it to connect from an external network.
+		// Local MySQL instance to use during development.
+		Class.forName("com.mysql.jdbc.Driver");
+		//url = "jdbc:mysql://127.0.0.1:3306/auctionsystem?user=root,password=Admin2015";
+		connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/auctionsystem", "root","Admin2015");
+	}
+
+    PreparedStatement pstatement = null;
+    String queryString = "insert into users(first_name, last_name, birthdate, gender, email, phone_num, payment_type, payment_account_num, bank_name, uname, pass, zip_code, country, city, street_name, regdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    pstatement = connection.prepareStatement(queryString);
+    pstatement.setString(1, fname);
+    pstatement.setString(2, lname);
+    pstatement.setString(3, birthdate);
+    pstatement.setInt(4, sex);
+    pstatement.setString(5, email);
+    pstatement.setString(6, phone_number);
+    pstatement.setString(7, payment_type);
+    pstatement.setString(8, pay_acc_num);
+    pstatement.setString(9, bank_name);
+    pstatement.setString(10, user);
+    pstatement.setString(11, pwd);
+    pstatement.setString(12, zipcode);
+    pstatement.setString(13, country);
+    pstatement.setString(14, city);
+    pstatement.setString(15, street);
+    pstatement.setDate(16, new java.sql.Date(today.getTime()));
+    int i = pstatement.executeUpdate();//Executes the given SQL statement, which may be an INSERT, UPDATE, or DELETE statement or an SQL statement that returns nothing, such as an SQL DDL statement.
+    pstatement.close();
+    connection.close();
+    if (i > 0) {
+        response.sendRedirect("welcome.jsp");
+    } else {
+        response.sendRedirect("index.jsp");
+    }
+%>
